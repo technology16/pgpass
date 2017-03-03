@@ -41,7 +41,7 @@ public class PgPassLoader {
     /**
      * Read password from default pgpass location
      */
-    public String getPgPass() throws PgPassLoaderException {
+    public char[] getPgPass() throws PgPassLoaderException {
         return getPgPass(getPgPassPath());
     }
 
@@ -50,10 +50,10 @@ public class PgPassLoader {
      *
      * @param pgPassPath path to pgpass file
      */
-    public String getPgPass(Path pgPassPath) throws PgPassLoaderException {
+    public char[] getPgPass(Path pgPassPath) throws PgPassLoaderException {
         String pgPass = null;
         try (BufferedReader reader = Files.newBufferedReader(pgPassPath, StandardCharsets.UTF_8)) {
-            String settingsLine = null;
+            String settingsLine;
             while ((settingsLine = reader.readLine()) != null) {
                 if (!settingsLine.startsWith("#")){
                     String[] settings = PATTERN.split(settingsLine);
@@ -69,7 +69,7 @@ public class PgPassLoader {
             throw new PgPassLoaderException(String.format("Ошибка чтения файла pgpass: %s", pgPassPath), e);
         }
 
-        return pgPass;
+        return pgPass != null ? pgPass.toCharArray() : new char[0];
     }
 
     private boolean settingsMatch(String[] settings) {
