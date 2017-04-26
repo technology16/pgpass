@@ -1,4 +1,4 @@
-package ru.taximaxim.PgPassLoader;
+package ru.taximaxim.pgpass;
 
 public class PgPassException extends Exception {
 

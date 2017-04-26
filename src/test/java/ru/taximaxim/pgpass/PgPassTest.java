@@ -1,8 +1,6 @@
-package ru.taximaxim;
+package ru.taximaxim.pgpass;
 
 import org.junit.Test;
-import ru.taximaxim.PgPassLoader.PgPass;
-import ru.taximaxim.PgPassLoader.PgPassException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,7 +8,7 @@ import java.nio.file.Paths;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class PgPassLoaderTest {
+public class PgPassTest {
     private final Path gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").getPath());
     private final Path gpPassPath = Paths.get(getClass().getResource("/pgpass").getPath());
 

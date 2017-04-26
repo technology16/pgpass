@@ -1,4 +1,4 @@
-package ru.taximaxim.PgPassLoader;
+package ru.taximaxim.pgpass;
 
 import java.io.BufferedReader;
 import java.io.IOException;
