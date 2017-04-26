@@ -11,10 +11,8 @@ import java.util.regex.Pattern;
 
 /**
  * Reads user password from pgpass file to be used to access certain DB passed to constructor
- *
- * @author shaidullin_iz
  */
-public class PgPassLoader {
+public class PgPass {
 
     private static final String REGEX = "(?<=(?<!\\\\)):|(?<=(?<!\\\\)(\\\\){2}):|(?<=(?<!\\\\)(\\\\){4}):";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
@@ -26,23 +24,11 @@ public class PgPassLoader {
     private static final int USER_IDX = 3;
     private static final int PASS_IDX = 4;
 
-    private final String host;
-    private final String port;
-    private final String dbName;
-    private final String user;
-
-    public PgPassLoader(String host, String port, String dbName, String user) {
-        this.host = host;
-        this.port = port;
-        this.dbName = dbName;
-        this.user = user;
-    }
-
     /**
      * Read password from default pgpass location
      */
-    public char[] getPgPass() throws PgPassLoaderException {
-        return getPgPass(getPgPassPath());
+    public static String get(String host, String port, String dbName, String user) throws PgPassException {
+        return get(getPgPassPath(), host, port, dbName, user);
     }
 
     /**
@@ -50,29 +36,29 @@ public class PgPassLoader {
      *
      * @param pgPassPath path to pgpass file
      */
-    public char[] getPgPass(Path pgPassPath) throws PgPassLoaderException {
-        String pgPass = null;
+    public static String get(Path pgPassPath, String host, String port, String dbName, String user)
+            throws PgPassException {
         try (BufferedReader reader = Files.newBufferedReader(pgPassPath, StandardCharsets.UTF_8)) {
             String settingsLine;
+            String pgPass = null;
             while ((settingsLine = reader.readLine()) != null) {
                 if (!settingsLine.startsWith("#")){
                     String[] settings = PATTERN.split(settingsLine);
-                    if (settingsMatch(settings)) {
+                    if (settingsMatch(settings, host, port, dbName, user)) {
                         pgPass = settings[PASS_IDX];
                         break;
                     }
                 }
             }
+            return pgPass;
         } catch (NoSuchFileException e) {
-            throw new PgPassLoaderException(String.format("Файл pgpass не найден: %s", pgPassPath), e);
+            throw new PgPassException(String.format("Pgpass file not found: %s", pgPassPath), e);
         } catch (IOException e) {
-            throw new PgPassLoaderException(String.format("Ошибка чтения файла pgpass: %s", pgPassPath), e);
+            throw new PgPassException(String.format("Failed reading pgpass file: %s", pgPassPath), e);
         }
-
-        return pgPass != null ? pgPass.toCharArray() : new char[0];
     }
 
-    private boolean settingsMatch(String[] settings) {
+    private static boolean settingsMatch(String[] settings, String host, String port, String dbName, String user) {
         if (settings.length != 5) {
             return false;
         } else {
@@ -85,7 +71,7 @@ public class PgPassLoader {
     }
 
     // TODO support PGPASSFILE
-    private Path getPgPassPath() {
+    private static Path getPgPassPath() {
         Path path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
         String os = System.getProperty("os.name").toUpperCase();
         if (os.contains("WIN")) {
