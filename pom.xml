@@ -12,23 +12,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ftpRepository.id>taximaxim-chelny</ftpRepository.id>
-        <ftpRepository.url>ftp://ftp:ftp@storage.chelny.taximaxim.ru/mvn</ftpRepository.url>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>${ftpRepository.id}</id>
-            <url>${ftpRepository.url}</url>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>${ftpRepository.id}</id>
-            <url>${ftpRepository.url}</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <plugins>
@@ -39,16 +23,9 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
-                <version>3.3</version>
+                <version>3.6.1</version>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ftp</artifactId>
-                <version>RELEASE</version>
-            </extension>
-        </extensions>
     </build>
     <dependencies>
         <dependency>
