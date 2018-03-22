@@ -16,11 +16,20 @@ mvn install:install-file
 
 #### Usage
 
-API is simple. Currently two static getters are available:
+API is simple. Currently static getters are available:
 ```
 // Look at default location
 PgPass.get(String host, String port, String dbName, String user)
 
 // Look at provided location
 PgPass.get(Path pgPassPath, String host, String port, String dbName, String user)
+
+// Returns all PgPassEntry from default location
+PgPass.getAll()
+
+// Returns all PgPassEntry from provided location
+PgPass.get(Path pgPassPath)
+
+// Return pgpass file default location
+PgPass.getPgPassPath()
 ```
