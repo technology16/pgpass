@@ -1,12 +1,14 @@
 package ru.taximaxim.pgpass;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
 
 public class PgPassTest {
     private final Path gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").getPath());
@@ -29,7 +31,17 @@ public class PgPassTest {
 
     @Test
     public void testHostnameMissing() throws PgPassException {
-        
         assertNull(PgPass.get(gpPassPath, "anything.test", "5432", "db1", "user1"));
+    }
+
+    @Test
+    public void testReadAll() throws PgPassException {
+        List<PgPassEntry> predefined = new ArrayList<>();
+
+        predefined.add(new PgPassEntry("127.0.0.1", "*", "db1", "user1", "777"));
+        predefined.add(new PgPassEntry("my.test", "*", "db1", "user1", "888"));
+        predefined.add(new PgPassEntry("*", "*", "db1", "user1", "999"));
+
+        assertEquals(predefined, PgPass.getAll(gpPassPathWildcard));
     }
 }
