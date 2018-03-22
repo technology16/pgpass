@@ -5,9 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Reads user password from pgpass file to be used to access certain DB passed to constructor
@@ -48,33 +48,27 @@ public class PgPass {
         return getAll(getPgPassPath());
     }
 
-
     /**
      * Returns all PgPassEntry from pgpass located at {@code pgPassPath}
      *
      * @param pgPassPath path to pgpass file
      */
     public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
-        List<PgPassEntry> lines = new ArrayList<>();
         try {
-            Files.readAllLines(pgPassPath).forEach(line -> {
-                if (!line.startsWith("#")) {
-                    String[] parts = PATTERN.split(line);
-                    if (parts.length == 5) {
-                        lines.add(new PgPassEntry(parts[HOST_IDX], parts[PORT_IDX],
-                                parts[NAME_IDX], parts[USER_IDX], parts[PASS_IDX]));
-                    }
-                }
-            });
+            return Files.readAllLines(pgPassPath).stream()
+                    .filter(line -> !line.startsWith("#"))
+                    .map(PATTERN::split)
+                    .filter(parts -> parts.length == 5)
+                    .map(parts -> new PgPassEntry(parts[HOST_IDX], parts[PORT_IDX],
+                                    parts[NAME_IDX], parts[USER_IDX], parts[PASS_IDX]))
+                    .distinct()
+                    .collect(Collectors.toList());
         } catch (NoSuchFileException e) {
             throw new PgPassException(String.format("Pgpass file not found: %s", pgPassPath), e);
         } catch (IOException e) {
             throw new PgPassException(String.format("Failed reading pgpass file: %s", pgPassPath), e);
         }
-
-        return lines;
     }
-
 
     /**
      * Return pgpass default location
