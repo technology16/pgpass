@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class PgPass {
 
-    private static final String REGEX ="((?:[^:]|(?:\\:))+):((?:[^:]|(?:\\:))+):((?:[^:]|(?:\\:))+):((?:[^:]|(?:\\:))+):((?:[^:]|(?:\\:))+)";
+    private static final String REGEX ="((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+)";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     private static final int HOST_IDX = 1;
@@ -29,7 +29,7 @@ public class PgPass {
      * Read password from default pgpass location
      */
     public static String get(String host, String port, String dbName, String user) throws PgPassException {
-    	return get(getPgPassPath(), host, port, dbName, user);
+        return get(getPgPassPath(), host, port, dbName, user);
     }
 
     /**
@@ -47,7 +47,7 @@ public class PgPass {
      * Returns all PgPassEntry from default pgpass location
      */
     public static List<PgPassEntry> getAll() throws PgPassException {
-    	return getAll(getPgPassPath());
+        return getAll(getPgPassPath());
     }
 
     /**
@@ -57,19 +57,18 @@ public class PgPass {
      */
     public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
         try {
-			List<PgPassEntry> allPassPath = new ArrayList<PgPassEntry>();
-			for (String line : Files.readAllLines(pgPassPath)) {
-				if (!line.startsWith("#")) {
-					Matcher pathParts = PATTERN.matcher(line);
-					if (pathParts.find()) {
-						if (pathParts.groupCount() == 5) {
-							allPassPath.add(new PgPassEntry(pathParts.group(HOST_IDX), pathParts.group(PORT_IDX),
-									pathParts.group(NAME_IDX), pathParts.group(USER_IDX), pathParts.group(PASS_IDX)));
-						}
-					}
-				}
-			}
-			return allPassPath;
+            List<PgPassEntry> allPassPath = new ArrayList<>();
+            for (String line : Files.readAllLines(pgPassPath)) {
+                if (!line.startsWith("#")) {
+                    Matcher pathParts = PATTERN.matcher(line);
+                    if (pathParts.matches() & pathParts.groupCount() == 5) {
+                        allPassPath.add(new PgPassEntry(pathParts.group(HOST_IDX),
+                                pathParts.group(PORT_IDX), pathParts.group(NAME_IDX),
+                                pathParts.group(USER_IDX), pathParts.group(PASS_IDX)));
+                    }
+                }
+            }
+            return allPassPath;
 
         } catch (NoSuchFileException e) {
             throw new PgPassException(String.format("Pgpass file not found: %s", pgPassPath), e);
