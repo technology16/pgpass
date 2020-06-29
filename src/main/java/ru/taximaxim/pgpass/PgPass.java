@@ -61,7 +61,7 @@ public class PgPass {
             for (String line : Files.readAllLines(pgPassPath)) {
                 if (!line.startsWith("#")) {
                     Matcher pathParts = PATTERN.matcher(line);
-                    if (pathParts.matches() & pathParts.groupCount() == 5) {
+                    if (pathParts.matches() && pathParts.groupCount() == 5) {
                         allPassPath.add(new PgPassEntry(pathParts.group(HOST_IDX),
                                 pathParts.group(PORT_IDX), pathParts.group(NAME_IDX),
                                 pathParts.group(USER_IDX), pathParts.group(PASS_IDX)));
