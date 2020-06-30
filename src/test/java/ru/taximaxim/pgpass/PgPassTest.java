@@ -13,6 +13,7 @@ import org.junit.Test;
 public class PgPassTest {
     private final Path gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").getPath());
     private final Path gpPassPath = Paths.get(getClass().getResource("/pgpass").getPath());
+    private final Path gpPassPathWildcardEscape = Paths.get(getClass().getResource("/pgpass_wildcard_escape").getPath());
 
     @Test
     public void testHostnameExistingIp() throws PgPassException {
@@ -32,6 +33,16 @@ public class PgPassTest {
     @Test
     public void testHostnameMissing() throws PgPassException {
         assertNull(PgPass.get(gpPassPath, "anything.test", "5432", "db1", "user1"));
+    }
+
+    @Test
+    public void testHaveEscapeSymbols() throws PgPassException {
+        assertEquals("9\\9:9", PgPass.get(gpPassPathWildcardEscape, "anything.test", "5432", "db:1", "u:ser\\1"));
+    }
+
+    @Test
+    public void testHaveEscapeSymbolsHostname() throws PgPassException {
+        assertEquals("777", PgPass.get(gpPassPathWildcardEscape, "127\\.0:.0.1", "5432", "db1", "user1"));
     }
 
     @Test

@@ -62,9 +62,9 @@ public class PgPass {
                 if (!line.startsWith("#")) {
                     Matcher pathParts = PATTERN.matcher(line);
                     if (pathParts.matches() && pathParts.groupCount() == 5) {
-                        allPassPath.add(new PgPassEntry(pathParts.group(HOST_IDX),
-                                pathParts.group(PORT_IDX), pathParts.group(NAME_IDX),
-                                pathParts.group(USER_IDX), pathParts.group(PASS_IDX)));
+                        allPassPath.add(new PgPassEntry(getUnEscape(pathParts.group(HOST_IDX)),
+                                getUnEscape(pathParts.group(PORT_IDX)), getUnEscape(pathParts.group(NAME_IDX)),
+                                getUnEscape(pathParts.group(USER_IDX)), getUnEscape(pathParts.group(PASS_IDX))));
                     }
                 }
             }
@@ -87,6 +87,29 @@ public class PgPass {
             path = Paths.get(System.getenv("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
         }
         return path;
+    }
+    /**
+     * Return PgPass with unescape sumbols
+     */
+    public static String getUnEscape(String line) {
+        StringBuilder newLine = new StringBuilder();
+        char[] lineChars = line.toCharArray();
+        char backslash = '\\';
+        char doubleDot = ':';
+        for (int i = 0; i < lineChars.length; i++) {
+            if (lineChars[i] == backslash) {
+                if (lineChars[i + 1] == doubleDot) {
+                    continue;
+                } else {
+                    if (lineChars[i + 1] == backslash) {
+                        newLine.append(lineChars[i]);
+                    }
+                }
+            } else {
+                newLine.append(lineChars[i]);
+            }
+        }
+        return newLine.toString();
     }
 
     private PgPass() {
