@@ -42,7 +42,7 @@ public class PgPassTest {
 
     @Test
     public void testHaveEscapeSymbolsHostname() throws PgPassException {
-        assertEquals("777", PgPass.get(gpPassPathWildcardEscape, "127\\.0:.0.1", "5432", "db1", "user1"));
+        assertEquals("7\\:7\\7", PgPass.get(gpPassPathWildcardEscape, "127\\.0:.0.1", "5432", "db1", "user1"));
     }
 
     @Test

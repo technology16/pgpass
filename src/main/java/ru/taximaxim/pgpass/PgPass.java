@@ -62,9 +62,9 @@ public class PgPass {
                 if (!line.startsWith("#")) {
                     Matcher pathParts = PATTERN.matcher(line);
                     if (pathParts.matches() && pathParts.groupCount() == 5) {
-                        allPassPath.add(new PgPassEntry(getUnEscape(pathParts.group(HOST_IDX)),
-                                getUnEscape(pathParts.group(PORT_IDX)), getUnEscape(pathParts.group(NAME_IDX)),
-                                getUnEscape(pathParts.group(USER_IDX)), getUnEscape(pathParts.group(PASS_IDX))));
+                        allPassPath.add(new PgPassEntry(unescape(pathParts.group(HOST_IDX)),
+                                unescape(pathParts.group(PORT_IDX)), unescape(pathParts.group(NAME_IDX)),
+                                unescape(pathParts.group(USER_IDX)), unescape(pathParts.group(PASS_IDX))));
                     }
                 }
             }
@@ -91,22 +91,23 @@ public class PgPass {
     /**
      * Return PgPass with unescape sumbols
      */
-    public static String getUnEscape(String line) {
+    public static String unescape(String line) {
         StringBuilder newLine = new StringBuilder();
-        char[] lineChars = line.toCharArray();
-        char backslash = '\\';
-        char doubleDot = ':';
-        for (int i = 0; i < lineChars.length; i++) {
-            if (lineChars[i] == backslash) {
-                if (lineChars[i + 1] == doubleDot) {
-                    continue;
-                } else {
-                    if (lineChars[i + 1] == backslash) {
-                        newLine.append(lineChars[i]);
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == '\\') {
+                if (i < line.length()) {
+                    if (line.charAt(i + 1) == ':') {
+                        newLine.append(line.charAt(i + 1));
+                        i++;
+                    } else {
+                        if (line.charAt(i + 1) == '\\') {
+                            newLine.append(line.charAt(i + 1));
+                            i++;
+                        }
                     }
                 }
             } else {
-                newLine.append(lineChars[i]);
+                newLine.append(line.charAt(i));
             }
         }
         return newLine.toString();
