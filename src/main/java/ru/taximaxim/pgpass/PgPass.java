@@ -99,9 +99,6 @@ public class PgPass {
                 if (i+1 < line.length()) {
                     switch (line.charAt(i + 1) ) {
                     case ':':
-                        newLine.append(line.charAt(i + 1));
-                        i++;
-                        break;
                     case '\\':
                         newLine.append(line.charAt(i + 1));
                         i++;
