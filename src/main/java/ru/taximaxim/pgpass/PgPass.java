@@ -5,23 +5,25 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
 
 /**
  * Reads user password from pgpass file to be used to access certain DB passed to constructor
  */
 public class PgPass {
 
-    private static final String REGEX = "(?<=(?<!\\\\)):|(?<=(?<!\\\\)(\\\\){2}):|(?<=(?<!\\\\)(\\\\){4}):";
+    private static final String REGEX ="((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+)";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
-    private static final int HOST_IDX = 0;
-    private static final int PORT_IDX = 1;
-    private static final int NAME_IDX = 2;
-    private static final int USER_IDX = 3;
-    private static final int PASS_IDX = 4;
+    private static final int HOST_IDX = 1;
+    private static final int PORT_IDX = 2;
+    private static final int NAME_IDX = 3;
+    private static final int USER_IDX = 4;
+    private static final int PASS_IDX = 5;
 
     /**
      * Read password from default pgpass location
@@ -55,14 +57,19 @@ public class PgPass {
      */
     public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
         try {
-            return Files.readAllLines(pgPassPath).stream()
-                    .filter(line -> !line.startsWith("#"))
-                    .map(PATTERN::split)
-                    .filter(parts -> parts.length == 5)
-                    .map(parts -> new PgPassEntry(parts[HOST_IDX], parts[PORT_IDX],
-                                    parts[NAME_IDX], parts[USER_IDX], parts[PASS_IDX]))
-                    .distinct()
-                    .collect(Collectors.toList());
+            List<PgPassEntry> allPassPath = new ArrayList<>();
+            for (String line : Files.readAllLines(pgPassPath)) {
+                if (!line.startsWith("#")) {
+                    Matcher pathParts = PATTERN.matcher(line);
+                    if (pathParts.matches() && pathParts.groupCount() == 5) {
+                        allPassPath.add(new PgPassEntry(unescape(pathParts.group(HOST_IDX)),
+                                unescape(pathParts.group(PORT_IDX)), unescape(pathParts.group(NAME_IDX)),
+                                unescape(pathParts.group(USER_IDX)), unescape(pathParts.group(PASS_IDX))));
+                    }
+                }
+            }
+            return allPassPath;
+
         } catch (NoSuchFileException e) {
             throw new PgPassException(String.format("Pgpass file not found: %s", pgPassPath), e);
         } catch (IOException e) {
@@ -80,6 +87,31 @@ public class PgPass {
             path = Paths.get(System.getenv("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
         }
         return path;
+    }
+    /**
+     * Return PgPass with unescape sumbols
+     */
+    public static String unescape(String line) {
+        StringBuilder newLine = new StringBuilder();
+        for (int i = 0; i < line.length(); i++) {
+
+            if (line.charAt(i) == '\\') {
+                if (i+1 < line.length()) {
+                    switch (line.charAt(i + 1) ) {
+                    case ':':
+                    case '\\':
+                        newLine.append(line.charAt(i + 1));
+                        i++;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            } else {
+                newLine.append(line.charAt(i));
+            }
+        }
+        return newLine.toString();
     }
 
     private PgPass() {
