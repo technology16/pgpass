@@ -94,16 +94,20 @@ public class PgPass {
     public static String unescape(String line) {
         StringBuilder newLine = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
+
             if (line.charAt(i) == '\\') {
-                if (i < line.length()) {
-                    if (line.charAt(i + 1) == ':') {
+                if (i+1 < line.length()) {
+                    switch (line.charAt(i + 1) ) {
+                    case ':':
                         newLine.append(line.charAt(i + 1));
                         i++;
-                    } else {
-                        if (line.charAt(i + 1) == '\\') {
-                            newLine.append(line.charAt(i + 1));
-                            i++;
-                        }
+                        break;
+                    case '\\':
+                        newLine.append(line.charAt(i + 1));
+                        i++;
+                        break;
+                    default:
+                        break;
                     }
                 }
             } else {
