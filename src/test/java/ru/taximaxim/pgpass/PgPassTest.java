@@ -3,6 +3,7 @@ package ru.taximaxim.pgpass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -11,9 +12,15 @@ import java.util.List;
 import org.junit.Test;
 
 public class PgPassTest {
-    private final Path gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").getPath());
-    private final Path gpPassPath = Paths.get(getClass().getResource("/pgpass").getPath());
-    private final Path gpPassPathWildcardEscape = Paths.get(getClass().getResource("/pgpass_wildcard_escape").getPath());
+    private final Path gpPassPathWildcard;
+    private final Path gpPassPath;
+    private final Path gpPassPathWildcardEscape;
+
+    public PgPassTest() throws URISyntaxException {
+        gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").toURI());
+        gpPassPath = Paths.get(getClass().getResource("/pgpass").toURI());
+        gpPassPathWildcardEscape = Paths.get(getClass().getResource("/pgpass_wildcard_escape").toURI());
+    }
 
     @Test
     public void testHostnameExistingIp() throws PgPassException {
