@@ -33,3 +33,7 @@ PgPass.get(Path pgPassPath)
 // Return pgpass file default location
 PgPass.getPgPassPath()
 ```
+
+#### License
+
+This application is licensed under the Apache License, Version 2.0. See [LICENCE](LICENSE) for details.
