@@ -65,7 +65,14 @@ public class PgPassEntry {
 
 
     /**
-     * Compare entry params with given params
+     * Compare entry parameters with given parameters
+     *
+     * @param host - host name or '*' for any
+     * @param port - host number or '*' for any
+     * @param dbName - database name or '*' for any
+     * @param user - user name or '*' for any
+     *
+     * @return true if parameters are equals or false otherwise
      */
     public boolean checkMatch(String host, String port, String dbName, String user) {
         boolean hostMatch = ANY.equals(getHost()) || getHost().equals(host);

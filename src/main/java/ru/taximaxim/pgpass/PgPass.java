@@ -46,6 +46,15 @@ public class PgPass {
 
     /**
      * Read password from default pgpass location
+     *
+     * @param host - host name or '*' for any
+     * @param port - host number or '*' for any
+     * @param dbName - database name or '*' for any
+     * @param user - user name or '*' for any
+     *
+     * @return first password by the given parameters, or null if there are no matches
+     *
+     * @throws PgPassException if file at default path doesn't exist or cannot be read
      */
     public static String get(String host, String port, String dbName, String user) throws PgPassException {
         return get(getPgPassPath(), host, port, dbName, user);
@@ -54,7 +63,15 @@ public class PgPass {
     /**
      * Read password from pgpass located at {@code pgPassPath}
      *
-     * @param pgPassPath path to pgpass file
+     * @param pgPassPath - path to pgpass file
+     * @param host - host name or '*' for any
+     * @param port - host number or '*' for any
+     * @param dbName - database name or '*' for any
+     * @param user - user name or '*' for any
+     *
+     * @return first password by the given parameters, or null if there are no matches
+     *
+     * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
     public static String get(Path pgPassPath, String host, String port, String dbName, String user)
             throws PgPassException {
@@ -64,6 +81,10 @@ public class PgPass {
 
     /**
      * Returns all PgPassEntry from default pgpass location
+     *
+     * @return all entries from default pgpass locations
+     *
+     * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
     public static List<PgPassEntry> getAll() throws PgPassException {
         return getAll(getPgPassPath());
@@ -73,6 +94,10 @@ public class PgPass {
      * Returns all PgPassEntry from pgpass located at {@code pgPassPath}
      *
      * @param pgPassPath path to pgpass file
+     *
+     * @return all entries from {@code pgPassPath}
+     *
+     * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
     public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
         try {
@@ -98,6 +123,8 @@ public class PgPass {
 
     /**
      * Return pgpass default location
+     *
+     * @return pgpass default location
      */
     public static Path getPgPassPath() {
         Path path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
@@ -107,8 +134,13 @@ public class PgPass {
         }
         return path;
     }
+
     /**
-     * Return PgPass with unescape sumbols
+     * Removes escape characters from the given string
+     *
+     * @param line string with escape characters
+     *
+     * @return string without escape characters
      */
     public static String unescape(String line) {
         StringBuilder newLine = new StringBuilder();
