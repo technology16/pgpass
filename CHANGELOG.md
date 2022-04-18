@@ -8,3 +8,6 @@
 
 0.0.2
   - added getAll methods, minor changes.
+
+0.0.3
+  - added PGPASSFILE from env

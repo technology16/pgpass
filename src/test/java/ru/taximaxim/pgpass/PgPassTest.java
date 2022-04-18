@@ -1,7 +1,6 @@
 package ru.taximaxim.pgpass;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -9,22 +8,27 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class PgPassTest {
     private final Path gpPassPathWildcard;
     private final Path gpPassPath;
+    private final Path gpPassPathEnv;
     private final Path gpPassPathWildcardEscape;
 
     public PgPassTest() throws URISyntaxException {
         gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").toURI());
         gpPassPath = Paths.get(getClass().getResource("/pgpass").toURI());
+        gpPassPathEnv = Paths.get(System.getenv("PGPASSFILE"));
         gpPassPathWildcardEscape = Paths.get(getClass().getResource("/pgpass_wildcard_escape").toURI());
     }
 
     @Test
     public void testHostnameExistingIp() throws PgPassException {
         assertEquals("777", PgPass.get(gpPassPathWildcard, "127.0.0.1", "5432", "db1", "user1"));
+        assertEquals("777", PgPass.get(gpPassPathEnv, "127.0.0.1", "5432", "db1", "user1"));
+        assertEquals("999", PgPass.get(gpPassPathEnv, "127.0.0.1", "5432", "db1", "user2"));
     }
 
     @Test
@@ -39,6 +43,7 @@ public class PgPassTest {
 
     @Test
     public void testHostnameMissing() throws PgPassException {
+        assertNull(PgPass.get(gpPassPathEnv, "anything.test", "5432", "db1", "user1"));
         assertNull(PgPass.get(gpPassPath, "anything.test", "5432", "db1", "user1"));
     }
 

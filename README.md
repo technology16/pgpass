@@ -35,6 +35,13 @@ PgPass.get(Path pgPassPath)
 PgPass.getPgPassPath()
 ```
 
+#### Testing
+pgpass is expected to be set as environment variable  
+Prevented that working dir is this repo path, add this to you running container:
+```
+PGPASSFILE=src/test/resources/pgpass
+```
+
 #### License
 
 This application is licensed under the Apache License, Version 2.0. See [LICENCE](LICENSE) for details.
