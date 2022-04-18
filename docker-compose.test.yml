@@ -9,27 +9,3 @@ services:
       - ./:/wd
     working_dir: /wd
     command: ["mvn", "clean", "install"]
-    environment:
-      - PGPASSFILE=/wd/src/test/resources/pgpass
-
-  t2:
-    container_name: pgpass_wildcard
-    image: maven:3.5.3-jdk-8-alpine
-    volumes:
-      - ${HOME}/.m2:/root/.m2
-      - ./:/wd
-    working_dir: /wd
-    command: ["mvn", "clean", "install"]
-    environment:
-      - PGPASSFILE:/wd/src/test/resources/gpass_wildcard
-
-  t3:
-    container_name: pgpass_wildcard_escape
-    image: maven:3.5.3-jdk-8-alpine
-    volumes:
-      - ${HOME}/.m2:/root/.m2
-      - ./:/wd
-    working_dir: /wd
-    command: ["mvn", "clean", "install"]
-    environment:
-      - PGPASSFILE:/wd/src/test/resources/pgpass_wildcard_escape
