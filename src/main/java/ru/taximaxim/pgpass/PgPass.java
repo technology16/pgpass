@@ -19,6 +19,9 @@
  */
 package ru.taximaxim.pgpass;
 
+import org.neogeo.util.DetectOS;
+
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -35,7 +38,7 @@ import java.util.regex.Pattern;
  */
 public class PgPass {
 
-    private static final String REGEX ="((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+)";
+    private static final String REGEX = "((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+):((?:[^:]|(?:\\\\:))+)";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     private static final int HOST_IDX = 1;
@@ -47,13 +50,11 @@ public class PgPass {
     /**
      * Read password from default pgpass location
      *
-     * @param host - host name or '*' for any
-     * @param port - host number or '*' for any
+     * @param host   - host name or '*' for any
+     * @param port   - host number or '*' for any
      * @param dbName - database name or '*' for any
-     * @param user - user name or '*' for any
-     *
+     * @param user   - user name or '*' for any
      * @return first password by the given parameters, or null if there are no matches
-     *
      * @throws PgPassException if file at default path doesn't exist or cannot be read
      */
     public static String get(String host, String port, String dbName, String user) throws PgPassException {
@@ -64,13 +65,11 @@ public class PgPass {
      * Read password from pgpass located at {@code pgPassPath}
      *
      * @param pgPassPath - path to pgpass file
-     * @param host - host name or '*' for any
-     * @param port - host number or '*' for any
-     * @param dbName - database name or '*' for any
-     * @param user - user name or '*' for any
-     *
+     * @param host       - host name or '*' for any
+     * @param port       - host number or '*' for any
+     * @param dbName     - database name or '*' for any
+     * @param user       - user name or '*' for any
      * @return first password by the given parameters, or null if there are no matches
-     *
      * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
     public static String get(Path pgPassPath, String host, String port, String dbName, String user)
@@ -83,10 +82,9 @@ public class PgPass {
      * Returns all PgPassEntry from default pgpass location
      *
      * @return all entries from default pgpass locations
-     *
      * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
-    public static List<PgPassEntry> getAll() throws PgPassException {
+    private static List<PgPassEntry> getAll() throws PgPassException {
         return getAll(getPgPassPath());
     }
 
@@ -94,12 +92,10 @@ public class PgPass {
      * Returns all PgPassEntry from pgpass located at {@code pgPassPath}
      *
      * @param pgPassPath path to pgpass file
-     *
      * @return all entries from {@code pgPassPath}
-     *
      * @throws PgPassException if file at given path doesn't exist or cannot be read
      */
-    public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
+    private static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
         try {
             List<PgPassEntry> allPassPath = new ArrayList<>();
             for (String line : Files.readAllLines(pgPassPath)) {
@@ -126,12 +122,41 @@ public class PgPass {
      *
      * @return pgpass default location
      */
-    public static Path getPgPassPath() {
-        Path path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
-        String os = System.getProperty("os.name").toUpperCase();
-        if (os.contains("WIN")) {
-            path = Paths.get(System.getenv("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
+    private static Path getPgPassEnv() {
+        Path path = null;
+        String user_home;
+        String pgpass_fname;
+        String os = DetectOS.detect();
+        switch (os) {
+            case "IS_UNIX":
+                user_home = "user.home";
+                pgpass_fname = ".pgpass";
+                break;
+            case "IS_WINDOWS":
+                user_home = "APPDATA";
+                pgpass_fname = "postgresql/pgpass.conf";
+                break;
+            default:
+                user_home = "user.home";
+                pgpass_fname = ".pgpass";
         }
+
+        if (System.getenv().containsKey("PGPASSFILE")) {
+            path = Paths.get(System.getenv("PGPASSFILE"));
+        } else {
+            path = Paths.get(System.getProperty(user_home)).resolve(Paths.get(pgpass_fname));
+        }
+        return path;
+    }
+
+
+    /**
+     * Return pgpass default location
+     *
+     * @return pgpass default location
+     */
+    public static Path getPgPassPath() {
+        Path path = getPgPassEnv();
         return path;
     }
 
@@ -139,7 +164,6 @@ public class PgPass {
      * Removes escape characters from the given string
      *
      * @param line string with escape characters
-     *
      * @return string without escape characters
      */
     public static String unescape(String line) {
@@ -147,15 +171,15 @@ public class PgPass {
         for (int i = 0; i < line.length(); i++) {
 
             if (line.charAt(i) == '\\') {
-                if (i+1 < line.length()) {
-                    switch (line.charAt(i + 1) ) {
-                    case ':':
-                    case '\\':
-                        newLine.append(line.charAt(i + 1));
-                        i++;
-                        break;
-                    default:
-                        break;
+                if (i + 1 < line.length()) {
+                    switch (line.charAt(i + 1)) {
+                        case ':':
+                        case '\\':
+                            newLine.append(line.charAt(i + 1));
+                            i++;
+                            break;
+                        default:
+                            break;
                     }
                 }
             } else {

@@ -5,8 +5,7 @@ import org.junit.Test;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -14,21 +13,19 @@ import static org.junit.Assert.assertNull;
 public class PgPassTest {
     private final Path gpPassPathWildcard;
     private final Path gpPassPath;
-    private final Path gpPassPathEnv;
     private final Path gpPassPathWildcardEscape;
 
     public PgPassTest() throws URISyntaxException {
-        gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").toURI());
-        gpPassPath = Paths.get(getClass().getResource("/pgpass").toURI());
-        gpPassPathEnv = Paths.get(System.getenv("PGPASSFILE"));
-        gpPassPathWildcardEscape = Paths.get(getClass().getResource("/pgpass_wildcard_escape").toURI());
+        gpPassPathWildcard = Paths.get(Objects.requireNonNull(getClass().getResource("/pgpass_wildcard")).toURI());
+        gpPassPath = Paths.get(Objects.requireNonNull(getClass().getResource("/pgpass")).toURI());
+        gpPassPathWildcardEscape = Paths.get(Objects.requireNonNull(getClass().getResource("/pgpass_wildcard_escape")).toURI());
     }
 
     @Test
     public void testHostnameExistingIp() throws PgPassException {
         assertEquals("777", PgPass.get(gpPassPathWildcard, "127.0.0.1", "5432", "db1", "user1"));
-        assertEquals("777", PgPass.get(gpPassPathEnv, "127.0.0.1", "5432", "db1", "user1"));
-        assertEquals("999", PgPass.get(gpPassPathEnv, "127.0.0.1", "5432", "db1", "user2"));
+        assertEquals("777", PgPass.get("127.0.0.1", "5432", "db1", "user1"));
+        assertEquals("999", PgPass.get("127.0.0.1", "5432", "db1", "user2"));
     }
 
     @Test
@@ -43,7 +40,7 @@ public class PgPassTest {
 
     @Test
     public void testHostnameMissing() throws PgPassException {
-        assertNull(PgPass.get(gpPassPathEnv, "anything.test", "5432", "db1", "user1"));
+        assertNull(PgPass.get( "anything.test", "5432", "db1", "user1"));
         assertNull(PgPass.get(gpPassPath, "anything.test", "5432", "db1", "user1"));
     }
 
@@ -57,14 +54,14 @@ public class PgPassTest {
         assertEquals("7\\:7\\7", PgPass.get(gpPassPathWildcardEscape, "127\\.0:.0.1", "5432", "db1", "user1"));
     }
 
-    @Test
-    public void testReadAll() throws PgPassException {
-        List<PgPassEntry> predefined = new ArrayList<>();
-
-        predefined.add(new PgPassEntry("127.0.0.1", "*", "db1", "user1", "777"));
-        predefined.add(new PgPassEntry("my.test", "*", "db1", "user1", "888"));
-        predefined.add(new PgPassEntry("*", "*", "db1", "user1", "999"));
-
-        assertEquals(predefined, PgPass.getAll(gpPassPathWildcard));
-    }
+//    @Test
+//    public void testReadAll() throws PgPassException {
+//        List<PgPassEntry> predefined = new ArrayList<>();
+//
+//        predefined.add(new PgPassEntry("127.0.0.1", "*", "db1", "user1", "777"));
+//        predefined.add(new PgPassEntry("my.test", "*", "db1", "user1", "888"));
+//        predefined.add(new PgPassEntry("*", "*", "db1", "user1", "999"));
+//
+//        assertEquals(predefined, PgPass.getAll(gpPassPathWildcard));
+//    }
 }
