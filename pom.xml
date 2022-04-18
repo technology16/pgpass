@@ -32,6 +32,12 @@
             <organization>"Technology" LLC</organization>
             <organizationUrl>https://ooo.technology/</organizationUrl>
         </developer>
+        <developer>
+            <name>LittleEaster</name>
+            <email>someware.dark@at.com</email>
+            <organization>"nn"</organization>
+            <organizationUrl>""</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
