@@ -35,12 +35,12 @@ PgPass.get(Path pgPassPath)
 PgPass.getPgPassPath()
 ```
 
-#### Testing
-pgpass is expected to be set as environment variable  
-Prevented that working dir is this repo path, add this to you running container:
+#### Docker Testing
+just : 
+```bash
+docker-compose -f docker-compose.test.yml run --rm t1
 ```
-PGPASSFILE=src/test/resources/pgpass
-```
+
 
 #### License
 
