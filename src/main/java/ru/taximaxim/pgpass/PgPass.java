@@ -122,15 +122,21 @@ public class PgPass {
     }
 
     /**
-     * Return pgpass default location
+     * Return pgpass default location as for standard postgreSQL cascade approach:
+     * - check from env var: PGPASSFILE
+     * - check for user home folder
      *
-     * @return pgpass default location
+     * @return pgpass default location, null if not found
      */
     public static Path getPgPassPath() {
-        Path path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
-        String os = System.getProperty("os.name").toUpperCase();
-        if (os.contains("WIN")) {
-            path = Paths.get(System.getenv("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
+        Path path;
+        String OS = System.getProperty("os.name").toLowerCase();
+        if (System.getenv().containsKey("PGPASSFILE")) {
+            path = Paths.get(System.getenv("PGPASSFILE"));
+        } else if (OS.contains("win")) {
+            path = Paths.get(System.getProperty("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
+        } else {
+            path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
         }
         return path;
     }
