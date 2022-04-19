@@ -1,20 +1,52 @@
 package ru.taximaxim.pgpass;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
 
 public class PgPassTest {
     private final Path gpPassPathWildcard;
     private final Path gpPassPath;
     private final Path gpPassPathWildcardEscape;
+
+    /*
+     * found at  https://stackoverflow.com/questions/318239/how-do-i-set-environment-variables-from-java
+     * */
+    @SuppressWarnings({"unchecked"})
+    public static void updateEnv(String name, String val) throws ReflectiveOperationException {
+        Map<String, String> env = System.getenv();
+        Field field = env.getClass().getDeclaredField("m");
+        field.setAccessible(true);
+        ((Map<String, String>) field.get(env)).put(name, val);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static void removeEnv(String name) throws ReflectiveOperationException {
+        Map<String, String> env = System.getenv();
+        Field field = env.getClass().getDeclaredField("m");
+        field.setAccessible(true);
+        ((Map<String, String>) field.get(env)).remove(name);
+    }
+
+    static void copy(Path source, Path dest) {
+        try {
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     public PgPassTest() throws URISyntaxException {
         gpPassPathWildcard = Paths.get(getClass().getResource("/pgpass_wildcard").toURI());
@@ -61,5 +93,27 @@ public class PgPassTest {
         predefined.add(new PgPassEntry("*", "*", "db1", "user1", "999"));
 
         assertEquals(predefined, PgPass.getAll(gpPassPathWildcard));
+    }
+
+    @Test
+    public void test_env() throws ReflectiveOperationException {
+        updateEnv("PGPASSFILE", "/a/sample/path/pgpass");
+        assertEquals("/a/sample/path/pgpass", System.getenv("PGPASSFILE"));
+        removeEnv("PGPASSFILE");
+        assertFalse(System.getenv().containsKey("PGPASSFILE"));
+    }
+
+    @Test
+    public void testEnvPGPASSFILE() throws PgPassException, ReflectiveOperationException {
+        updateEnv("PGPASSFILE", gpPassPath.toAbsolutePath().toString());
+        assertEquals("777", PgPass.get("127.0.0.1", "5432", "db1", "user1"));
+    }
+
+    @Test
+    public void testUserHomePgpass() throws PgPassException, ReflectiveOperationException {
+        removeEnv("PGPASSFILE");
+        Path user_pgpass = Paths.get("/root/.pgpass");
+        copy(gpPassPath, user_pgpass);
+        assertEquals("888", PgPass.get("my.test", "5432", "db1", "user1"));
     }
 }

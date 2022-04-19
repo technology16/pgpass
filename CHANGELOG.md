@@ -1,5 +1,10 @@
 # PgPass
 
+1.0.1
+  - added pgpass search as for PostgreSQL standard approach
+  - added docker-compose test environment 
+  - changed org.apache.maven.plugins version to 3.6.1->3.9.0
+
 1.0.0
   - added missing javadocs, public release.
 
@@ -8,3 +13,4 @@
 
 0.0.2
   - added getAll methods, minor changes.
+
