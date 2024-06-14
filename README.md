@@ -35,6 +35,12 @@ PgPass.get(Path pgPassPath)
 PgPass.getPgPassPath()
 ```
 
+#### Docker Testing
+```bash
+docker-compose -f docker-compose.test.yml run --rm t1
+```
+
+
 #### License
 
 This application is licensed under the Apache License, Version 2.0. See [LICENCE](LICENSE) for details.
