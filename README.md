@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.technology16/PgPass.svg?label=Maven%20Central)](https://maven-badges.herokuapp.com/maven-central/com.github.technology16/PgPass)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.technology16/pgpass.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.technology16%22%20AND%20a:%22pgpass%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ### PgPass
@@ -9,9 +9,9 @@ Simple Java library for easy PostgreSQL [password files](https://www.postgresql.
 You can pull PgPass from the central maven repository, just add these to your pom.xml file:
 ```
 <dependency>
-    <groupId>com.github.technology16</groupId>
-    <artifactId>PgPass</artifactId>
-    <version>1.0.0</version>
+  <groupId>com.github.technology16</groupId>
+  <artifactId>pgpass</artifactId>
+  <version>2.0.0</version>
 </dependency>
 ```
 
