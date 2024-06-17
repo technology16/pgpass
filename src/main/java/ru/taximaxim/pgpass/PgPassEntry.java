@@ -1,22 +1,18 @@
-/*
- * ========================LICENSE_START=================================
- * PgPass
- * *
- * Copyright (C) 2017-2020 "Technology" LLC
- * *
+/*******************************************************************************
+ * Copyright 2017-2024 TAXTELECOM, LLC
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * =========================LICENSE_END==================================
- */
+ *******************************************************************************/
 package ru.taximaxim.pgpass;
 
 import java.util.Objects;
@@ -27,6 +23,7 @@ import java.util.Objects;
  * @author galiev_mr
  */
 public class PgPassEntry {
+
     private static final String ANY = "*";
 
     private final String host;
@@ -63,7 +60,6 @@ public class PgPassEntry {
         return pass;
     }
 
-
     /**
      * Compare entry parameters with given parameters
      *
@@ -82,34 +78,26 @@ public class PgPassEntry {
         return hostMatch && portMatch && nameMatch && userMatch;
     }
 
-
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((dbName == null) ? 0 : dbName.hashCode());
-        result = prime * result + ((host == null) ? 0 : host.hashCode());
-        result = prime * result + ((pass == null) ? 0 : pass.hashCode());
-        result = prime * result + ((port == null) ? 0 : port.hashCode());
-        result = prime * result + ((user == null) ? 0 : user.hashCode());
-        return result;
+        return Objects.hash(host, port, dbName, user, pass);
     }
 
     @Override
     public boolean equals(Object obj) {
-        boolean eq = false;
-
         if (this == obj) {
-            eq = true;
-        } else if (obj instanceof PgPassEntry) {
+            return true;
+        }
+
+        if (obj instanceof PgPassEntry) {
             PgPassEntry entry = (PgPassEntry) obj;
 
-            eq = Objects.equals(host, entry.getHost())
+            return Objects.equals(host, entry.getHost())
                     && Objects.equals(port, entry.getPort())
                     && Objects.equals(dbName, entry.getDbName())
                     && Objects.equals(user, entry.getUser())
                     && Objects.equals(pass, entry.getPass());
         }
-        return eq;
+        return false;
     }
 }

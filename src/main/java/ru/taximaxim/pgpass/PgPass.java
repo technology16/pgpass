@@ -1,22 +1,18 @@
-/*
- * ========================LICENSE_START=================================
- * PgPass
- * *
- * Copyright (C) 2017-2020 "Technology" LLC
- * *
+/*******************************************************************************
+ * Copyright 2017-2024 TAXTELECOM, LLC
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * =========================LICENSE_END==================================
- */
+ *******************************************************************************/
 package ru.taximaxim.pgpass;
 
 import java.io.IOException;
@@ -26,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,8 +72,11 @@ public class PgPass {
      */
     public static String get(Path pgPassPath, String host, String port, String dbName, String user)
             throws PgPassException {
-        return getAll(pgPassPath).stream().filter(e -> e.checkMatch(host, port, dbName, user))
-                .map(PgPassEntry::getPass).findAny().orElse(null);
+        return getAll(pgPassPath).stream()
+            .filter(e -> e.checkMatch(host, port, dbName, user))
+            .map(PgPassEntry::getPass)
+            .findAny()
+            .orElse(null);
     }
 
     /**
@@ -101,24 +101,33 @@ public class PgPass {
      */
     public static List<PgPassEntry> getAll(Path pgPassPath) throws PgPassException {
         try {
-            List<PgPassEntry> allPassPath = new ArrayList<>();
-            for (String line : Files.readAllLines(pgPassPath)) {
-                if (!line.startsWith("#")) {
-                    Matcher pathParts = PATTERN.matcher(line);
-                    if (pathParts.matches() && pathParts.groupCount() == 5) {
-                        allPassPath.add(new PgPassEntry(unescape(pathParts.group(HOST_IDX)),
-                                unescape(pathParts.group(PORT_IDX)), unescape(pathParts.group(NAME_IDX)),
-                                unescape(pathParts.group(USER_IDX)), unescape(pathParts.group(PASS_IDX))));
-                    }
-                }
-            }
-            return allPassPath;
-
+            return readLines(pgPassPath);
         } catch (NoSuchFileException e) {
             throw new PgPassException(String.format("Pgpass file not found: %s", pgPassPath), e);
         } catch (IOException e) {
             throw new PgPassException(String.format("Failed reading pgpass file: %s", pgPassPath), e);
         }
+    }
+
+    private static List<PgPassEntry> readLines(Path pgPassPath) throws IOException {
+        List<PgPassEntry> entries = new ArrayList<>();
+        for (String line : Files.readAllLines(pgPassPath)) {
+            if (line.startsWith("#")) {
+                continue;
+            }
+
+            Matcher pathParts = PATTERN.matcher(line);
+            if (pathParts.matches() && pathParts.groupCount() == 5) {
+                String host = unescape(pathParts.group(HOST_IDX));
+                String port = unescape(pathParts.group(PORT_IDX));
+                String dbName = unescape(pathParts.group(NAME_IDX));
+                String user = unescape(pathParts.group(USER_IDX));
+                String pass = unescape(pathParts.group(PASS_IDX));
+
+                entries.add(new PgPassEntry(host, port, dbName, user, pass));
+            }
+        }
+        return entries;
     }
 
     /**
@@ -129,16 +138,17 @@ public class PgPass {
      * @return pgpass default location, null if not found
      */
     public static Path getPgPassPath() {
-        Path path;
-        String OS = System.getProperty("os.name").toLowerCase();
-        if (System.getenv().containsKey("PGPASSFILE")) {
-            path = Paths.get(System.getenv("PGPASSFILE"));
-        } else if (OS.contains("win")) {
-            path = Paths.get(System.getProperty("APPDATA")).resolve(Paths.get("postgresql", "pgpass.conf"));
-        } else {
-            path = Paths.get(System.getProperty("user.home")).resolve(Paths.get(".pgpass"));
+        String env = System.getenv("PGPASSFILE");
+        if (env != null) {
+            return Paths.get(env);
         }
-        return path;
+
+        String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+        if (os.contains("win")) {
+            return Paths.get(System.getProperty("APPDATA"), "postgresql", "pgpass.conf");
+        }
+
+        return Paths.get(System.getProperty("user.home"), ".pgpass");
     }
 
     /**
@@ -151,27 +161,21 @@ public class PgPass {
     public static String unescape(String line) {
         StringBuilder newLine = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
-
-            if (line.charAt(i) == '\\') {
-                if (i+1 < line.length()) {
-                    switch (line.charAt(i + 1) ) {
-                    case ':':
-                    case '\\':
-                        newLine.append(line.charAt(i + 1));
-                        i++;
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            } else {
+            if (line.charAt(i) != '\\') {
                 newLine.append(line.charAt(i));
+            } else if (i + 1 < line.length()) {
+                switch (line.charAt(i + 1)) {
+                case ':':
+                case '\\':
+                    newLine.append(line.charAt(++i));
+                    break;
+                default:
+                    break;
+                }
             }
         }
         return newLine.toString();
     }
 
-    private PgPass() {
-
-    }
+    private PgPass() {}
 }

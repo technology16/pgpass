@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.technology16</groupId>
-    <artifactId>PgPass</artifactId>
-    <version>1.0.0</version>
+    <artifactId>pgpass</artifactId>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>PgPass</name>
@@ -21,16 +21,8 @@
 
     <developers>
         <developer>
-            <name>Alexander Levsha</name>
-            <email>levsha_aa@taximaxim.ru</email>
-            <organization>"Technology" LLC</organization>
-            <organizationUrl>https://ooo.technology/</organizationUrl>
-        </developer>
-        <developer>
-            <name>Mansur Galiev</name>
-            <email>galiev_mr@taximaxim.ru</email>
-            <organization>"Technology" LLC</organization>
-            <organizationUrl>https://ooo.technology/</organizationUrl>
+            <organization>TAXTELECOM, LLC</organization>
+            <organizationUrl>https://maxim-technology.com</organizationUrl>
         </developer>
     </developers>
 
@@ -54,6 +46,14 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <gpg.version>3.2.4</gpg.version>
+        <junit.version>4.13.2</junit.version>
+        <maven.javadoc.version>3.7.0</maven.javadoc.version>
+        <maven.source.version>3.3.1</maven.source.version>
+        <maven.compiler.version>3.9.0</maven.compiler.version>
+        <maven.surefire.version>3.3.0</maven.surefire.version>
+        <nexus.version>1.7.0</nexus.version>
     </properties>
 
     <build>
@@ -65,7 +65,7 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
-                <version>3.9.0</version>
+                <version>${maven.compiler.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -78,7 +78,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -91,7 +91,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>${maven.source.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -104,7 +104,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>${gpg.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -116,14 +116,13 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -135,7 +134,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
