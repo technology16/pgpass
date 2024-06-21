@@ -145,7 +145,7 @@ public class PgPass {
 
         String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
         if (os.contains("win")) {
-            return Paths.get(System.getProperty("APPDATA"), "postgresql", "pgpass.conf");
+            return Paths.get(System.getenv("APPDATA"), "postgresql", "pgpass.conf");
         }
 
         return Paths.get(System.getProperty("user.home"), ".pgpass");
